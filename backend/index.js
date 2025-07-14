@@ -4,9 +4,15 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import Message from './models/Message.js';
 import User from './models/User.js';
 import { handleClerkWebhook } from './controllers/webhookController.js';
+
+// ES6 __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load environment variables
 dotenv.config();
@@ -19,6 +25,10 @@ app.use('/api/webhooks/clerk', express.raw({ type: 'application/json' }));
 // Regular middleware
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from frontend build (if exists)
+app.use(express.static(path.join(__dirname, 'public')));
+
 const server = http.createServer(app);
 
 // MongoDB connection
@@ -146,6 +156,22 @@ app.get('/api/users/:clerkId', async (req, res) => {
         console.error('Error fetching user:', error);
         res.status(500).json({ error: 'Failed to fetch user' });
     }
+});
+
+// Serve frontend for all non-API routes (SPA fallback)
+app.get('*', (req, res) => {
+    // Don't serve frontend for API routes or socket.io
+    if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) {
+        return res.status(404).json({ error: 'Not found' });
+    }
+
+    // Check if public/index.html exists
+    const indexPath = path.join(__dirname, 'public', 'index.html');
+    res.sendFile(indexPath, (err) => {
+        if (err) {
+            res.status(404).json({ error: 'Frontend not built' });
+        }
+    });
 });
 
 const port = process.env.PORT || 3000;
