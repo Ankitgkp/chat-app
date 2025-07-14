@@ -38,3 +38,4 @@ app.get('*', (req, res) => {
 - Root Directory: `backend`
 - Build Command: `npm run build`
 - Output Directory: `public`
+    
