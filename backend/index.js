@@ -32,6 +32,14 @@ io.on("connection", (socket) => {
         socket.to(data.room).emit("message_recieve", data);
     })
 
+    socket.on("send_photo", (data) => {
+        socket.to(data.room).emit("photo_recieve", data);
+    })
+
+    socket.on("send_video", (data) => {
+        socket.to(data.room).emit("video_recieve", data);
+    })
+
     socket.on("disconnect", () => {
         console.log("User disconnected: " + socket.id);
     })
