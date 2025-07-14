@@ -1,7 +1,11 @@
 import React from 'react'
+import ScrollToBottom from 'react-scroll-to-bottom'
 import MessageBubble from './MessageBubble'
+import useAutoScroll from '../hooks/useAutoScroll'
 
 const MessageList = ({ messageList, username }) => {
+    const messagesEndRef = useAutoScroll(messageList);
+
     if (messageList.length === 0) {
         return (
             <div className="flex items-center justify-center h-full">
@@ -19,15 +23,22 @@ const MessageList = ({ messageList, username }) => {
     }
 
     return (
-        <div className="space-y-4">
-            {messageList.map((messageContent, index) => (
-                <MessageBubble
-                    key={index}
-                    messageContent={messageContent}
-                    username={username}
-                />
-            ))}
-        </div>
+        <ScrollToBottom
+            className="h-full"
+            followButtonClassName="scroll-follow-button"
+        >
+            <div className="space-y-4 p-4">
+                {messageList.map((messageContent, index) => (
+                    <MessageBubble
+                        key={index}
+                        messageContent={messageContent}
+                        username={username}
+                    />
+                ))}
+                {/* Invisible div to scroll to */}
+                <div ref={messagesEndRef} />
+            </div>
+        </ScrollToBottom>
     )
 }
 

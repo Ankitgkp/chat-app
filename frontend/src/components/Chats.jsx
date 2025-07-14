@@ -19,12 +19,12 @@ const Chats = ({ socket, username, roomID }) => {
         <div className="flex items-center justify-center min-h-screen p-4">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[600px] flex flex-col">
                 <ChatHeader roomID={roomID} username={username} />
-                
-                <div className="flex-1 overflow-y-auto bg-gray-50 p-4">
+
+                <div className="flex-1 overflow-hidden bg-gray-50">
                     <MessageList messageList={messageList} username={username} />
                 </div>
 
-                <ChatInput 
+                <ChatInput
                     currentMessage={currentMessage}
                     setCurrentMessage={setCurrentMessage}
                     sendMessage={sendMessage}

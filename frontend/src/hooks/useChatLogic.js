@@ -13,6 +13,7 @@ const useChatLogic = (socket, username, roomID) => {
             const data = {
                 username: username,
                 room: roomID,
+                author: username,
                 message: currentMessage,
                 type: "text",
                 time: getCurrentTime()
@@ -31,6 +32,7 @@ const useChatLogic = (socket, username, roomID) => {
                 const data = {
                     username: username,
                     room: roomID,
+                    author: username,
                     photo: event.target.result,
                     type: "photo",
                     time: getCurrentTime()
@@ -51,6 +53,7 @@ const useChatLogic = (socket, username, roomID) => {
                 const data = {
                     username: username,
                     room: roomID,
+                    author: username,
                     video: event.target.result,
                     type: "video",
                     time: getCurrentTime()
@@ -70,6 +73,19 @@ const useChatLogic = (socket, username, roomID) => {
     }
 
     useEffect(() => {
+        socket.on("previous_messages", (messages) => {
+            const formattedMessages = messages.map(msg => ({
+                username: msg.author,
+                author: msg.author,
+                message: msg.message,
+                photo: msg.mediaData && msg.type === 'photo' ? msg.mediaData : undefined,
+                video: msg.mediaData && msg.type === 'video' ? msg.mediaData : undefined,
+                type: msg.type,
+                time: new Date(msg.timestamp).getHours() + ':' + String(new Date(msg.timestamp).getMinutes()).padStart(2, '0')
+            }));
+            setMessageList(formattedMessages);
+        });
+
         socket.on("message_recieve", (data) => {
             setMessageList((list) => [...list, data]);
         });

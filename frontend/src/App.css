@@ -1,0 +1,30 @@
+/* Custom styles for react-scroll-to-bottom */
+.scroll-follow-button {
+  background: #3b82f6;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  height: 40px;
+  position: absolute;
+  right: 20px;
+  bottom: 80px;
+  width: 40px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.scroll-follow-button:hover {
+  background: #2563eb;
+  transform: scale(1.05);
+}
+
+.scroll-follow-button:active {
+  transform: scale(0.95);
+}
+
+/* Ensure smooth scrolling */
+* {
+  scroll-behavior: smooth;
+}
