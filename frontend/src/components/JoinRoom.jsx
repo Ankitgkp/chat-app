@@ -1,6 +1,6 @@
 import React from 'react'
 
-const JoinRoom = ({ username, setusername, roomID, setroomID, joinRoom }) => {
+const JoinRoom = ({ username, roomID, setroomID, joinRoom }) => {
     return (
         <div className="flex items-center justify-center min-h-screen px-4 bg-gradient-to-br from-blue-50 to-indigo-100">
             <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md border border-gray-100 backdrop-blur-sm">
@@ -11,23 +11,10 @@ const JoinRoom = ({ username, setusername, roomID, setroomID, joinRoom }) => {
                         </svg>
                     </div>
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">Join Chat Room</h1>
-                    <p className="text-gray-600">Connect with others in real-time</p>
+                    <p className="text-gray-600">Welcome, {username}! Connect with others in real-time</p>
                 </div>
 
                 <div className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Your Name
-                        </label>
-                        <input
-                            onChange={(event) => setusername(event.target.value)}
-                            type="text"
-                            placeholder="Enter your name"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
-                            value={username}
-                        />
-                    </div>
-
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Room ID
@@ -43,7 +30,7 @@ const JoinRoom = ({ username, setusername, roomID, setroomID, joinRoom }) => {
 
                     <button
                         onClick={joinRoom}
-                        disabled={!username || !roomID}
+                        disabled={!roomID}
                         className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-105"
                     >
                         Join Room

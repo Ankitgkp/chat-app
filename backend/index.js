@@ -3,15 +3,27 @@ import express from 'express';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 import Message from './models/Message.js';
+import User from './models/User.js';
+import { handleClerkWebhook } from './controllers/webhookController.js';
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
+
+// Middleware for parsing raw body (needed for webhook verification)
+app.use('/api/webhooks/clerk', express.raw({ type: 'application/json' }));
+
+// Regular middleware
 app.use(cors());
 app.use(express.json());
 const server = http.createServer(app);
 
 // MongoDB connection
-mongoose.connect('mongodb+srv://ankit_user:B5h0sd4kyx@cluster0.ajc6xcq.mongodb.net/chatapp', {
+const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://ankit_user:B5h0sd4kyx@cluster0.ajc6xcq.mongodb.net/chatapp';
+mongoose.connect(mongoUri, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
@@ -20,7 +32,9 @@ mongoose.connect('mongodb+srv://ankit_user:B5h0sd4kyx@cluster0.ajc6xcq.mongodb.n
 
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173",
+        origin: process.env.NODE_ENV === 'production'
+            ? ["https://your-frontend-domain.vercel.app"]
+            : ["http://localhost:5173"],
         methods: ["GET", "POST"],
     }
 })
@@ -109,8 +123,35 @@ io.on("connection", (socket) => {
     })
 })
 
+// Webhook endpoint for Clerk
+app.post('/api/webhooks/clerk', handleClerkWebhook);
 
+// API Routes
+app.get('/api/users', async (req, res) => {
+    try {
+        const users = await User.find({ isActive: true }).select('-__v');
+        res.json(users);
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ error: 'Failed to fetch users' });
+    }
+});
 
-server.listen(3000, () => {
-    console.log('Server is running on port 3000');
+app.get('/api/users/:clerkId', async (req, res) => {
+    try {
+        const user = await User.findOne({ clerkId: req.params.clerkId, isActive: true }).select('-__v');
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        res.json(user);
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ error: 'Failed to fetch user' });
+    }
+});
+
+const port = process.env.PORT || 3000;
+
+server.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });
