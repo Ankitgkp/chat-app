@@ -33,7 +33,7 @@ mongoose.connect(mongoUri, {
 const io = new Server(server, {
     cors: {
         origin: process.env.NODE_ENV === 'production'
-            ? ["https://your-frontend-domain.vercel.app"]
+            ? ["https://chat-app-c8bn.vercel.app"]
             : ["http://localhost:5173"],
         methods: ["GET", "POST"],
     }

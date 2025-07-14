@@ -5,7 +5,9 @@ import Chats from './components/Chats';
 import JoinRoom from './components/JoinRoom';
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react'
 
-const socket = io.connect('http://localhost:3000')
+const socket = io.connect(
+  import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000'
+)
 
 function App() {
   const [roomID, setroomID] = useState('');
