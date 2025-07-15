@@ -4,46 +4,48 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import Message from './models/Message.js';
 import User from './models/User.js';
 import { handleClerkWebhook } from './controllers/webhookController.js';
-
-// ES6 __dirname equivalent
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
 
-// Middleware for parsing raw body (needed for webhook verification)
 app.use('/api/webhooks/clerk', express.raw({ type: 'application/json' }));
 
-// Regular middleware
-app.use(cors());
+app.use(cors({
+    origin: process.env.NODE_ENV === 'production'
+        ? [process.env.FRONTEND_URL]
+        : ["http://localhost:5173", "http://localhost:3000"],
+    methods: ["GET", "POST"],
+    credentials: true
+}));
 app.use(express.json());
-
-// Serve static files from frontend build (if exists)
-app.use(express.static(path.join(__dirname, 'public')));
 
 const server = http.createServer(app);
 
-// MongoDB connection
-const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://ankit_user:B5h0sd4kyx@cluster0.ajc6xcq.mongodb.net/chatapp';
-mongoose.connect(mongoUri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+const mongoUri = process.env.MONGODB_URI;
+if (!mongoUri) {
+    console.error('MONGODB_URI environment variable is required');
+    process.exit(1);
+}
+
+mongoose.connect(mongoUri)
     .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => console.error('MongoDB connection error:', err));
+    .catch((err) => {
+        console.error('MongoDB connection error:', err);
+        process.exit(1);
+    });
 
 const io = new Server(server, {
     cors: {
-        origin: true, // Allow same-origin requests
+        origin: process.env.NODE_ENV === 'production'
+            ? [process.env.FRONTEND_URL]
+            : ["http://localhost:5173", "http://localhost:3000"],
         methods: ["GET", "POST"],
+        credentials: true
     }
 })
 
@@ -131,10 +133,12 @@ io.on("connection", (socket) => {
     })
 })
 
-// Webhook endpoint for Clerk
 app.post('/api/webhooks/clerk', handleClerkWebhook);
 
-// API Routes
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 app.get('/api/users', async (req, res) => {
     try {
         const users = await User.find({ isActive: true }).select('-__v');
@@ -158,24 +162,10 @@ app.get('/api/users/:clerkId', async (req, res) => {
     }
 });
 
-// Serve frontend for all non-API routes (SPA fallback)
-app.get('*', (req, res) => {
-    // Don't serve frontend for API routes or socket.io
-    if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) {
-        return res.status(404).json({ error: 'Not found' });
-    }
-
-    // Check if public/index.html exists
-    const indexPath = path.join(__dirname, 'public', 'index.html');
-    res.sendFile(indexPath, (err) => {
-        if (err) {
-            res.status(404).json({ error: 'Frontend not built' });
-        }
-    });
-});
-
 const port = process.env.PORT || 3000;
 
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
+
+export default app;

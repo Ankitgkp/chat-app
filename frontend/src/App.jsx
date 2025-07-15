@@ -5,10 +5,8 @@ import Chats from './components/Chats';
 import JoinRoom from './components/JoinRoom';
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react'
 
-// Use relative path for same-domain deployment
-const socket = io.connect(
-  import.meta.env.VITE_BACKEND_URL || window.location.origin
-)
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+const socket = io.connect(BACKEND_URL);
 
 function App() {
   const [roomID, setroomID] = useState('');
