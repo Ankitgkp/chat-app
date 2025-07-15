@@ -1,4 +1,4 @@
-/* Custom styles for react-scroll-to-bottom */
+
 .scroll-follow-button {
   background: #3b82f6;
   border: none;
@@ -24,12 +24,22 @@
   transform: scale(0.95);
 }
 
-/* Ensure smooth scrolling */
+
 * {
   scroll-behavior: smooth;
 }
 
-/* Cool animations for the sign-in page */
+
+html, body {
+  overflow-x: hidden;
+}
+
+#root {
+  height: 100vh;
+  overflow: hidden;
+}
+
+
 @keyframes blob {
   0% {
     transform: translate(0px, 0px) scale(1);

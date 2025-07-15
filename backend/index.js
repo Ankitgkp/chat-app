@@ -32,11 +32,10 @@ io.on("connection", (socket) => {
         socket.join(data)
         console.log(`User with ID: ${socket.id} joined room: ${data}`);
 
-        // Send previous messages to the user who just joined
         try {
             const previousMessages = await Message.find({ room: data })
                 .sort({ timestamp: 1 })
-                .limit(50); // Limit to last 50 messages
+                .limit(50);
 
             socket.emit("previous_messages", previousMessages);
         } catch (error) {
@@ -49,7 +48,6 @@ io.on("connection", (socket) => {
     });
 
     socket.on("send_message", async (data) => {
-        // Save message to database
         try {
             const newMessage = new Message({
                 room: data.room,
@@ -67,7 +65,6 @@ io.on("connection", (socket) => {
     })
 
     socket.on("send_photo", async (data) => {
-        // Save photo to database
         try {
             const newMessage = new Message({
                 room: data.room,
@@ -86,7 +83,7 @@ io.on("connection", (socket) => {
     })
 
     socket.on("send_video", async (data) => {
-        // Save video to database
+
         try {
             const newMessage = new Message({
                 room: data.room,

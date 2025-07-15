@@ -19,7 +19,7 @@ function App() {
     }
   }
 
-  return (<div className="min-h-screen bg-gray-50">
+  return (<div className="h-screen bg-gray-50 overflow-hidden">
     <SignedOut>
       <div className="flex items-center justify-center min-h-screen px-4">
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full border border-gray-100">
@@ -56,8 +56,8 @@ function App() {
     </SignedOut>
 
     <SignedIn>
-      <div className="min-h-screen bg-gray-50">
-        <div className="bg-white shadow-sm border-b border-gray-200">
+      <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
+        <div className="bg-white shadow-sm border-b border-gray-200 flex-shrink-0">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <h1 className="text-xl font-semibold text-gray-900">Realtime Chat</h1>
@@ -66,20 +66,24 @@ function App() {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex-1 overflow-hidden">
           {!showChat ? (
-            <JoinRoom
-              username={user?.firstName || user?.emailAddresses[0]?.emailAddress}
-              roomID={roomID}
-              setroomID={setroomID}
-              joinRoom={joinRoom}
-            />
+            <div className="h-full flex items-center justify-center px-4 sm:px-6 lg:px-8">
+              <JoinRoom
+                username={user?.firstName || user?.emailAddresses[0]?.emailAddress}
+                roomID={roomID}
+                setroomID={setroomID}
+                joinRoom={joinRoom}
+              />
+            </div>
           ) : (
-            <Chats
-              socket={socket}
-              username={user?.firstName || user?.emailAddresses[0]?.emailAddress}
-              roomID={roomID}
-            />
+            <div className="h-full px-4 sm:px-6 lg:px-8 py-4">
+              <Chats
+                socket={socket}
+                username={user?.firstName || user?.emailAddresses[0]?.emailAddress}
+                roomID={roomID}
+              />
+            </div>
           )}
         </div>
       </div>
