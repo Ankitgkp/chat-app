@@ -1,4 +1,4 @@
-# Vercel Deployment Guide
+# Vercel Monorepo Deployment Guide
 
 ## Prerequisites
 - Vercel account
@@ -6,52 +6,100 @@
 - MongoDB Atlas database
 - Clerk account for authentication
 
-## Option 1: Deploy as Separate Projects (Recommended)
+## Monorepo Deployment Steps
 
-### Backend Deployment
-1. Create a new Vercel project for backend
-2. Connect your GitHub repository
-3. Set root directory to `backend`
-4. Add environment variables:
+### Step 1: Initial Deployment
+1. Go to **Vercel Dashboard** → **New Project**
+2. **Import Git Repository** → Select your `chat-app` repository
+3. **Configure Project:**
+   - Framework Preset: **Other**
+   - Root Directory: **Leave empty** (uses root directory)
+   - Build Command: `npm run vercel-build`
+   - Output Directory: `frontend/dist`
+4. **Add Initial Environment Variables:**
    ```
    MONGODB_URI=mongodb+srv://ankit_user:B5h0sd4kyx@cluster0.ajc6xcq.mongodb.net/chatapp
-   CLERK_WEBHOOK_SECRET=your_webhook_secret_here
    NODE_ENV=production
-   FRONTEND_URL=https://your-frontend-domain.vercel.app
    PORT=3000
-   ```
-5. Deploy
-
-### Frontend Deployment
-1. Create a new Vercel project for frontend
-2. Connect your GitHub repository
-3. Set root directory to `frontend`
-4. Add environment variables:
-   ```
    VITE_CLERK_PUBLISHABLE_KEY=pk_test_Y29zbWljLWRydW0tNTcuY2xlcmsuYWNjb3VudHMuZGV2JA
-   VITE_BACKEND_URL=https://your-backend-domain.vercel.app
    ```
-5. Deploy
+5. **Click Deploy**
 
-## Option 2: Monorepo Deployment
+### Step 2: Get Your Domain
+After deployment, you'll get a domain like:
+```
+https://chat-app-xyz123.vercel.app
+```
 
-1. Deploy the entire repository to Vercel
-2. Use the root `vercel.json` configuration
-3. Add all environment variables in Vercel dashboard
-4. Vercel will handle both frontend and backend
+### Step 3: Update Environment Variables
+Go back to Vercel Dashboard → Your Project → Settings → Environment Variables
 
-## Environment Variables Setup
+Add these with your actual domain:
+```
+FRONTEND_URL=https://chat-app-xyz123.vercel.app
+VITE_BACKEND_URL=https://chat-app-xyz123.vercel.app
+```
 
-### Backend Variables (Vercel Dashboard):
-- `MONGODB_URI`: Your MongoDB connection string
-- `CLERK_WEBHOOK_SECRET`: Generate new secret in Clerk dashboard
-- `NODE_ENV`: production
-- `FRONTEND_URL`: Your deployed frontend URL
-- `PORT`: 3000
+### Step 4: Configure Clerk Webhook
+1. Go to **Clerk Dashboard** → **Webhooks**
+2. **Add Endpoint:** `https://chat-app-xyz123.vercel.app/api/webhooks/clerk`
+3. **Select Events:** `user.created`, `user.updated`, `user.deleted`
+4. **Copy the Signing Secret** (starts with `whsec_`)
+5. **Add to Vercel Environment Variables:**
+   ```
+   CLERK_WEBHOOK_SECRET=whsec_your_actual_secret_here
+   ```
 
-### Frontend Variables (Vercel Dashboard):
-- `VITE_CLERK_PUBLISHABLE_KEY`: Your Clerk publishable key
-- `VITE_BACKEND_URL`: Your deployed backend URL
+### Step 5: Final Deployment
+Go to Vercel Dashboard → Your Project → Deployments → **Redeploy**
+
+## How It Works
+
+### Project Structure
+```
+realtime-chat/
+├── backend/           # Node.js API and Socket.io server
+├── frontend/          # React frontend
+├── package.json       # Root package.json with build scripts
+└── vercel.json        # Vercel configuration for monorepo
+```
+
+### URL Structure After Deployment
+- **Frontend:** `https://your-domain.vercel.app/`
+- **API Routes:** `https://your-domain.vercel.app/api/*`
+- **Socket.io:** `https://your-domain.vercel.app/socket.io/`
+- **Webhooks:** `https://your-domain.vercel.app/api/webhooks/clerk`
+
+## Complete Environment Variables List
+
+Copy all these to your Vercel Dashboard → Settings → Environment Variables:
+
+```
+MONGODB_URI=mongodb+srv://ankit_user:B5h0sd4kyx@cluster0.ajc6xcq.mongodb.net/chatapp
+NODE_ENV=production
+PORT=3000
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_Y29zbWljLWRydW0tNTcuY2xlcmsuYWNjb3VudHMuZGV2JA
+FRONTEND_URL=https://your-actual-domain.vercel.app
+VITE_BACKEND_URL=https://your-actual-domain.vercel.app
+CLERK_WEBHOOK_SECRET=whsec_your_actual_secret_here
+```
+
+## Troubleshooting
+
+### Build Errors
+- Check if both `frontend/package.json` and `backend/package.json` exist
+- Verify `npm run vercel-build` works locally
+- Check Node.js version compatibility
+
+### Socket.io Connection Issues
+- Ensure `VITE_BACKEND_URL` points to your Vercel domain
+- Check CORS settings in backend allow your frontend domain
+- Verify WebSocket support is enabled
+
+### Webhook Issues
+- Test webhook endpoint: `https://your-domain.vercel.app/api/webhooks/clerk`
+- Verify `CLERK_WEBHOOK_SECRET` is correct
+- Check Clerk dashboard webhook configuration
 
 ## Security Notes
 - Never commit .env files to git
