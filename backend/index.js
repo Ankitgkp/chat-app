@@ -162,6 +162,13 @@ app.get('/api/users/:clerkId', async (req, res) => {
     }
 });
 
+app.get('*', (req, res) => {
+    if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ error: 'API endpoint not found' });
+    }
+    res.status(404).json({ error: 'Page not found' });
+});
+
 const port = process.env.PORT || 3000;
 
 server.listen(port, () => {
