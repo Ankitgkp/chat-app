@@ -4,8 +4,6 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "mkdir -p public && cd ../frontend && npm install && npm run build && rsync -av dist/ ../backend/public/",
     "start": "node index.js",
     "dev": "nodemon index.js"
   },
@@ -15,11 +13,9 @@
   "description": "",
   "dependencies": {
     "cors": "^2.8.5",
-    "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "mongoose": "^8.16.3",
     "nodemon": "^3.1.10",
-    "socket.io": "^4.8.1",
-    "svix": "^1.69.0"
+    "socket.io": "^4.8.1"
   }
 }

@@ -3,49 +3,25 @@ import express from 'express';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import Message from './models/Message.js';
 import User from './models/User.js';
-import { handleClerkWebhook } from './controllers/webhookController.js';
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
 
-app.use('/api/webhooks/clerk', express.raw({ type: 'application/json' }));
-
-app.use(cors({
-    origin: process.env.NODE_ENV === 'production'
-        ? [process.env.FRONTEND_URL]
-        : ["http://localhost:5173", "http://localhost:3000"],
-    methods: ["GET", "POST"],
-    credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 
 const server = http.createServer(app);
 
-const mongoUri = process.env.MONGODB_URI;
-if (!mongoUri) {
-    console.error('MONGODB_URI environment variable is required');
-    process.exit(1);
-}
-
+const mongoUri = 'mongodb+srv://ankit_user:B5h0sd4kyx@cluster0.ajc6xcq.mongodb.net/chatapp';
 mongoose.connect(mongoUri)
     .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => {
-        console.error('MongoDB connection error:', err);
-        process.exit(1);
-    });
+    .catch((err) => console.error('MongoDB connection error:', err));
 
 const io = new Server(server, {
     cors: {
-        origin: process.env.NODE_ENV === 'production'
-            ? [process.env.FRONTEND_URL]
-            : ["http://localhost:5173", "http://localhost:3000"],
+        origin: ["http://localhost:5173", "http://localhost:3000"],
         methods: ["GET", "POST"],
-        credentials: true
     }
 })
 
@@ -133,46 +109,8 @@ io.on("connection", (socket) => {
     })
 })
 
-app.post('/api/webhooks/clerk', handleClerkWebhook);
-
-app.get('/health', (req, res) => {
-    res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
-});
-
-app.get('/api/users', async (req, res) => {
-    try {
-        const users = await User.find({ isActive: true }).select('-__v');
-        res.json(users);
-    } catch (error) {
-        console.error('Error fetching users:', error);
-        res.status(500).json({ error: 'Failed to fetch users' });
-    }
-});
-
-app.get('/api/users/:clerkId', async (req, res) => {
-    try {
-        const user = await User.findOne({ clerkId: req.params.clerkId, isActive: true }).select('-__v');
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-        res.json(user);
-    } catch (error) {
-        console.error('Error fetching user:', error);
-        res.status(500).json({ error: 'Failed to fetch user' });
-    }
-});
-
-app.get('*', (req, res) => {
-    if (req.path.startsWith('/api/')) {
-        return res.status(404).json({ error: 'API endpoint not found' });
-    }
-    res.status(404).json({ error: 'Page not found' });
-});
-
-const port = process.env.PORT || 3000;
+const port = 3000;
 
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
-
-export default app;
